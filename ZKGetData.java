@@ -2,6 +2,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -18,20 +19,18 @@ public class ZKGetData {
    private static ZooKeeperConnection conn;
    private static String path;
    private static String host;
-   private HashMap<String, Integer> data = new HashMap<String, Integer>();
+   private LinkedHashMap<String, Integer> data = new LinkedHashMap<String, Integer>();
    
    ZKGetData(String path, String host) {
 	   this.path = path;
 	   this.host= host;	   
    }
    
-   private static void printHashMap(HashMap<String, Integer> hm ) {
+   private static void printHashMap(LinkedHashMap<String, Integer> hm ) {
 	   System.out.println("Data");
 	   for(Map.Entry<String, Integer> data : hm.entrySet()) {
 		   System.out.println(data.getKey() + ": " + data.getValue());
-	   }
-	   System.out.println(hm.size());
-		  
+	   }	  
    }
    
    public static Stat znode_exists(String path) throws 
@@ -40,7 +39,7 @@ public class ZKGetData {
    }
 //   public static void main(String[] args) throws InterruptedException, KeeperException {
 
-   public HashMap<String, Integer> getData() throws InterruptedException, KeeperException {
+   public LinkedHashMap<String, Integer> getData() throws InterruptedException, KeeperException {
       final CountDownLatch connectedSignal = new CountDownLatch(1);
 		
       try {
@@ -59,19 +58,16 @@ public class ZKGetData {
                         case Expired:
                         connectedSignal.countDown();
                         break;
-                     }
-							
+                     }		
                   } else {							
                      try {
                         byte[] bn = zk.getData(path, false, null);
                         ObjectInputStream obj = new ObjectInputStream(new ByteArrayInputStream(bn));
                         try{
-                        	data = (HashMap<String, Integer>)obj.readObject();	
-                        	System.out.println("Inside Watcher");
-                        	printHashMap(data);
-                        	System.out.println("Inside Watcher end");
-                        } 
-                        
+                        	data = (LinkedHashMap<String, Integer>)obj.readObject();	
+//                        	System.out.println("Inside Watcher");
+//                        	printHashMap(data);
+                        }                        
                         catch(Exception e){
                         	e.printStackTrace();
                         }
@@ -87,11 +83,8 @@ public class ZKGetData {
             
         	ObjectInputStream obj = new ObjectInputStream(new ByteArrayInputStream(b));
         	try{
-            	this.data = (HashMap<String, Integer>) obj.readObject();	
+            	this.data = (LinkedHashMap<String, Integer>) obj.readObject();	
                 printHashMap(data);
-
-            	System.out.println("Outside Watcher");
-            	
         	} 
             catch(Exception e){
             	e.printStackTrace();
@@ -106,7 +99,7 @@ public class ZKGetData {
       } catch(Exception e) {
         System.out.println(e.getMessage());
       }
-      printHashMap(data);
+//      printHashMap(data);
       return data;
    }
 }

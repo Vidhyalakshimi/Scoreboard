@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ZKSetData {
@@ -18,7 +19,7 @@ public class ZKSetData {
    
    ZKSetData(String path, String host) {
 	   this.path = path;
-	   this.host= host;	   
+	   this.host= host;	  
    }
 
    // Method to update the data in a znode. Similar to getData but without watcher.
@@ -27,13 +28,13 @@ public class ZKSetData {
       zk.setData(path, data, zk.exists(path,true).getVersion());
    }
    
-   private static void printHashMap(HashMap<String, Integer> hm ) {
+   private static void printHashMap(LinkedHashMap<String, Integer> hm ) {
 	   for(Map.Entry<String, Integer> data : hm.entrySet()) {
 		   System.out.println(data.getKey() + ": " + data.getValue());
 	   }
    }
    
-   public void setData(HashMap<String, Integer> map) throws InterruptedException,KeeperException, IOException {
+   public void setData(LinkedHashMap<String, Integer> map) throws IOException {
 	   	  ByteArrayOutputStream obj = new ByteArrayOutputStream();
 	   	  ObjectOutputStream out = new ObjectOutputStream(obj);
 	      out.writeObject(map);
@@ -46,16 +47,4 @@ public class ZKSetData {
 	         System.out.println(e.getMessage());
 	      }
 	   }
-//   public static void main(String[] args) throws InterruptedException,KeeperException {
-//      String path= "/MyFirstZnode";
-//      byte[] data = "Success12".getBytes(); //Assign data which is to be updated.
-//		
-//      try {
-//         conn = new ZooKeeperConnection();
-//         zk = conn.connect("localhost");
-//         update(path, data); // Update znode data to the specified path
-//      } catch(Exception e) {
-//         System.out.println(e.getMessage());
-//      }
-//   }
 }
