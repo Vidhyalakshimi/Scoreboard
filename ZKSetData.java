@@ -13,13 +13,9 @@ import java.util.Map;
 
 public class ZKSetData {
    private static ZooKeeper zk;
-   private static ZooKeeperConnection conn;
-   private static String path;
-   private static String host;
    
-   ZKSetData(String path, String host) {
-	   this.path = path;
-	   this.host= host;	  
+   ZKSetData(ZooKeeper zk) {
+	   this.zk = zk;
    }
 
    // Method to update the data in a znode. Similar to getData but without watcher.
@@ -34,17 +30,17 @@ public class ZKSetData {
 	   }
    }
    
-   public void setData(LinkedHashMap<String, Integer> map) throws IOException {
+   public void setData(String path, LinkedHashMap<String, Integer> map) throws IOException {
 	   	  ByteArrayOutputStream obj = new ByteArrayOutputStream();
 	   	  ObjectOutputStream out = new ObjectOutputStream(obj);
 	      out.writeObject(map);
 	      byte[] data = obj.toByteArray();
-	   	  try {
-	         conn = new ZooKeeperConnection();
-	         zk = conn.connect(host);
-	         update(path, data); // Update znode data to the specified path
-	   	  } catch(Exception e) {
-	         System.out.println(e.getMessage());
-	      }
+	      // Update znode data to the specified path
+	   	  
+	      try {
+			update(path, data);
+		} catch (KeeperException | InterruptedException e) {
+			e.printStackTrace();
+		} 
 	   }
 }

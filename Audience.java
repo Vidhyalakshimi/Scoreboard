@@ -17,20 +17,46 @@ import org.apache.zookeeper.data.Stat;
 
 public class Audience {
 
-   private static ZKGetData zkdata = new ZKGetData("/ScoreBoard", "localhost");
+   private ZooKeeper zk;
+   private ZooKeeperConnection conn;
+   private ZKGetData getdata;
+   private String path;
+   private String host;
    
-   private static void printLinkedHashMap(LinkedHashMap<String, Integer> hm ) {
-	   // Might not preserve order
-	   List<String> keys = new ArrayList<String>(hm.keySet());   
-       Collections.reverse(keys);
-       for(String strKey : keys){
-           System.out.println(strKey + ": "  + hm.get(strKey));
-       }
+   Audience(String path, String host) throws IOException, InterruptedException {
+	   setupConnection();
+	   this.getdata = new ZKGetData(this.zk);
+	   this.path = path;
+	   this.host = host;
+   	}
+   
+   private void setupConnection() throws IOException, InterruptedException {
+	     this.conn = new ZooKeeperConnection();
+	     this.zk = conn.connect("localhost");
    }
 
-   public static void main(String[] args) throws InterruptedException, KeeperException {
-	   LinkedHashMap<String, Integer> data = zkdata.getData();
-	   System.out.println("Most Recent Scores:");
-	   printLinkedHashMap(data);
+
+	private static void printLinkedHashMap(LinkedHashMap<String, Integer> hm ) {
+		   // Might not preserve order
+		   List<String> keys = new ArrayList<String>(hm.keySet());   
+	       Collections.reverse(keys);
+	       for(String strKey : keys){
+	           System.out.println(strKey + ": "  + hm.get(strKey));
+	       }
+	   }
+	
+	private void watch() throws InterruptedException, KeeperException {
+		LinkedHashMap<String, Integer> data = this.getdata.getData(this.path);
+		System.out.println("Most Recent Scores:");
+		printLinkedHashMap(data);
+	}
+
+
+   public static void main(String[] args) throws InterruptedException, KeeperException, IOException {
+	   String path = "/ScoreBoard";
+	   String host = "localhost";
+	   
+	   Audience aud = new Audience(path, host);
+	   aud.watch();
    }
 }

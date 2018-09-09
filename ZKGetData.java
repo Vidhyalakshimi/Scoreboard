@@ -16,14 +16,10 @@ import org.apache.zookeeper.data.Stat;
 public class ZKGetData {
 
    private static ZooKeeper zk;
-   private static ZooKeeperConnection conn;
-   private static String path;
-   private static String host;
    private LinkedHashMap<String, Integer> data = new LinkedHashMap<String, Integer>();
    
-   ZKGetData(String path, String host) {
-	   this.path = path;
-	   this.host= host;	   
+   ZKGetData(ZooKeeper zk) {
+	   this.zk = zk;
    }
    
    private static void printHashMap(LinkedHashMap<String, Integer> hm ) {
@@ -39,13 +35,10 @@ public class ZKGetData {
    }
 //   public static void main(String[] args) throws InterruptedException, KeeperException {
 
-   public LinkedHashMap<String, Integer> getData() throws InterruptedException, KeeperException {
+   public LinkedHashMap<String, Integer> getData(String path) throws InterruptedException, KeeperException {
       final CountDownLatch connectedSignal = new CountDownLatch(1);
 		
       try {
-         conn = new ZooKeeperConnection();
-         zk = conn.connect(host);
-         System.out.println(path);
          Stat stat = znode_exists(path);
          System.out.println(stat);
          if(stat != null) {

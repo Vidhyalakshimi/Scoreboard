@@ -19,17 +19,27 @@ public class Player {
    private ZKGetData getdata;
    private ZKSetData setdata;
    private int list_size;
-   Player(String path, String host, int list_size) {
-	   this.getdata = new ZKGetData(path, host);
-	   this.setdata = new ZKSetData(path, host);
+   private String path;
+   private String host;
+   Player(String path, String host, int list_size) throws IOException, InterruptedException {
+	   setupConnection();
+	   this.getdata = new ZKGetData(this.zk);
+	   this.setdata = new ZKSetData(this.zk);
 	   this.list_size = list_size;
-   }
+	   this.path = path;
+	   this.host = host;
+   	}
    
-   private void printHashMap(HashMap<String, Integer> hm ) {
-	   for(Map.Entry<String, Integer> data : hm.entrySet()) {
-		   System.out.println(data.getKey() + ": " + data.getValue());
-	   }
+   private void setupConnection() throws IOException, InterruptedException {
+	     this.conn = new ZooKeeperConnection();
+	     this.zk = conn.connect("localhost");
    }
+
+	private void printHashMap(HashMap<String, Integer> hm ) {
+		   for(Map.Entry<String, Integer> data : hm.entrySet()) {
+			   System.out.println(data.getKey() + ": " + data.getValue());
+		   }
+	   }
    
    private void printLinkedHashMap(LinkedHashMap<String, Integer> hm ) {
 	   // Might not preserve order
@@ -40,8 +50,11 @@ public class Player {
        }
    }
    
-   private void submitScore(LinkedHashMap<String, Integer> data, String player_name,
+   private void submitScore(String player_name,
 			int score) throws InterruptedException, KeeperException, IOException {
+	   
+	   LinkedHashMap<String, Integer> data = getdata.getData(this.path);
+	   
 	   if(data.size() < this.list_size){
 		   if(data.containsKey(player_name)){
 	   			  data.remove(player_name);
@@ -58,19 +71,18 @@ public class Player {
 	   data.put(player_name, score);
 	   System.out.println("Final:");
 	   printLinkedHashMap(data);
-	   setdata.setData(data);
+	   setdata.setData(this.path, data);
 	}
 
    public static void main(String[] args) throws InterruptedException,KeeperException, IOException {
 	   String path = "/ScoreBoard";
 	   String host = "localhost";
 	   int list_size = 3;
-	   String player_name = "Vid112";
-	   int score = 230;
+	   String player_name = "Vid412";
+	   int score = 330;
+	   
 	   Player play = new Player(path, host, list_size);
-	   LinkedHashMap<String, Integer> hm = play.getdata.getData();
-	   play.submitScore(hm, player_name, score);
+	   //Submit Score
+	   play.submitScore(player_name, score);
       }
-
-
 }
