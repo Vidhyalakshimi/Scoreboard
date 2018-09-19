@@ -1,15 +1,12 @@
-import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
 
 public class ZKSetData {
    private static ZooKeeper zk;
@@ -30,7 +27,7 @@ public class ZKSetData {
 	   }
    }
    
-   public void setData(String path, LinkedHashMap<String, Integer> map) throws IOException {
+   public void setData(String path, List<LinkedHashMap<String, Integer>> map) throws IOException {
 	   	  ByteArrayOutputStream obj = new ByteArrayOutputStream();
 	   	  ObjectOutputStream out = new ObjectOutputStream(obj);
 	      out.writeObject(map);

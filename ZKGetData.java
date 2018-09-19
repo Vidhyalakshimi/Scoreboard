@@ -1,22 +1,21 @@
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
 public class ZKGetData {
 
    private static ZooKeeper zk;
-   private LinkedHashMap<String, Integer> data = new LinkedHashMap<String, Integer>();
+   private List<LinkedHashMap<String, Integer>> data = new ArrayList<LinkedHashMap<String, Integer>>();
    
    ZKGetData(ZooKeeper zk) {
 	   this.zk = zk;
@@ -35,12 +34,11 @@ public class ZKGetData {
    }
 //   public static void main(String[] args) throws InterruptedException, KeeperException {
 
-   public LinkedHashMap<String, Integer> getData(String path) throws InterruptedException, KeeperException {
+   public List<LinkedHashMap<String, Integer>> getData(String path) throws InterruptedException, KeeperException {
       final CountDownLatch connectedSignal = new CountDownLatch(1);
 		
       try {
          Stat stat = znode_exists(path);
-         System.out.println(stat);
          if(stat != null) {
             byte[] b = zk.getData(path, new Watcher() {
 				
@@ -57,7 +55,7 @@ public class ZKGetData {
                         byte[] bn = zk.getData(path, false, null);
                         ObjectInputStream obj = new ObjectInputStream(new ByteArrayInputStream(bn));
                         try{
-                        	data = (LinkedHashMap<String, Integer>)obj.readObject();	
+                        	data = (ArrayList<LinkedHashMap<String, Integer>>)obj.readObject();	
 //                        	System.out.println("Inside Watcher");
 //                        	printHashMap(data);
                         }                        
@@ -76,16 +74,16 @@ public class ZKGetData {
             
         	ObjectInputStream obj = new ObjectInputStream(new ByteArrayInputStream(b));
         	try{
-            	this.data = (LinkedHashMap<String, Integer>) obj.readObject();	
-                printHashMap(data);
+            	this.data = (ArrayList<LinkedHashMap<String, Integer>>) obj.readObject();	
+//                System.out.println("Most recent:");
+//            	printHashMap(data.get(0));
+//            	System.out.println("Most Highest:");
+//                printHashMap(data.get(1));
         	} 
             catch(Exception e){
             	e.printStackTrace();
             }
             obj.close();
-//            String data = new String(b, "UTF-8");
-//            System.out.println(data);
-//            connectedSignal.await();
          } else {
             System.out.println("Node does not exists");
          }

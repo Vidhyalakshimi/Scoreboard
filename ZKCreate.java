@@ -22,23 +22,19 @@ public class ZKCreate {
       CreateMode.PERSISTENT);
    }
 
+   // Run command create <host> <path>
    public static void main(String[] args) {
-
-      // znode path
-//      String path = "/MyFirstZnode"; // Assign path to znode
-      String path = "/ScoreBoard";
-      
-      // data in byte array
-      byte[] data = "My first zookeeper app".getBytes(); // Declare data
+      String host = args[0];
+      String path = args[1];
+      byte[] data = "My first zookeeper app".getBytes(); 
 		
       try {
          conn = new ZooKeeperConnection();
-         zk = conn.connect("localhost");
-         create(path, data); // Create the data to the specified path
-         
+         zk = conn.connect(host);
+         create(path, data); 
          conn.close();
       } catch (Exception e) {
-         System.out.println(e.getMessage()); //Catch error message
+         System.out.println(e.getMessage()); 
       }
    }
 }
